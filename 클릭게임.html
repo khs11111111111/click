@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>클릭 게임</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #game-area {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        #world-records {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="nickname-form">
+            <input type="text" id="nickname" placeholder="닉네임을 입력하세요">
+            <button onclick="startGame()">게임 시작</button>
+        </div>
+
+        <div id="game-area" style="display: none;">
+            <div id="timer">시간: 10초</div>
+            <button id="click-button" onclick="clickButton()">클릭하세요!</button>
+            <div id="click-count">클릭 수: 0</div>
+        </div>
+
+        <div id="world-records" style="display: none;">
+            <h2>세계 기록</h2>
+            <ol id="records-list"></ol>
+        </div>
+    </div>
+
+    <script>
+        let nickname = '';
+        let clickCount = 0;
+        let timer = 10;
+        let gameInterval;
+        let records = [];
+
+        function startGame() {
+            nickname = document.getElementById('nickname').value;
+            if (nickname.trim() === '') {
+                alert('닉네임을 입력해주세요!');
+                return;
+            }
+            document.getElementById('nickname-form').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            resetGame();
+            gameInterval = setInterval(updateGame, 1000);
+        }
+
+        function resetGame() {
+            clickCount = 0;
+            timer = 10;
+            updateDisplay();
+        }
+
+        function updateGame() {
+            timer--;
+            if (timer <= 0) {
+                endGame();
+            }
+            updateDisplay();
+        }
+
+        function clickButton() {
+            clickCount++;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('timer').textContent = `시간: ${timer}초`;
+            document.getElementById('click-count').textContent = `클릭 수: ${clickCount}`;
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            alert(`게임 종료! ${nickname}님의 점수: ${clickCount}점`);
+            updateRecords();
+            showWorldRecords();
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('nickname-form').style.display = 'block';
+        }
+
+        function updateRecords() {
+            records.push({name: nickname, score: clickCount});
+            records.sort((a, b) => b.score - a.score);
+            records = records.slice(0, 5); // 상위 5개 기록만 유지
+        }
+
+        function showWorldRecords() {
+            const recordsList = document.getElementById('records-list');
+            recordsList.innerHTML = '';
+            records.forEach((record, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${record.name}: ${record.score}점`;
+                recordsList.appendChild(li);
+            });
+            document.getElementById('world-records').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
